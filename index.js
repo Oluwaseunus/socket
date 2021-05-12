@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const http = require('http');
+require('dotenv').config();
 const server = http.createServer(app);
 const io = require('socket.io')(server, {
   cors: {
@@ -8,6 +9,8 @@ const io = require('socket.io')(server, {
     method: ['GET', 'POST'],
   }
 });
+
+const PORT = process.env.PORT || 7500
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello world</h1>');
@@ -34,6 +37,6 @@ io.on('connection', socket => {
   });
 });
 
-server.listen(8000, () => {
-  console.log('listening on *:8000');
+server.listen(PORT, () => {
+  console.log(`listening on *:${PORT}`);
 });
