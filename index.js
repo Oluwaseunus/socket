@@ -16,16 +16,28 @@ app.get('/', (req, res) => {
   res.send('<h1>Hello world</h1>');
 });
 
+const allSockets = [];
+
 io.on('connection', socket => {
+  socket.on('disconnect', () => {
+    const disconnectedSocketIndex = allSockets.findIndex((entry) => socket.id === entry.socket.id);
+    if (disconnectedSocketIndex !== -1) {
+      const disconnectedSocket = allSockets[disconnectedSocketIndex];
+      allSockets.splice(disconnectedSocketIndex, 1);
+      io.local.emit('disconnected', disconnectedSocket.user);
+    }
+  })
+
   socket.onAny((eventName, ...args) => {
     console.log({ eventName, args });
     switch (eventName) {
       case 'join':
+      case 'user-reconnected':
+        const user = args[0];
+        allSockets.push({ user, socket })
         const clients = io.engine.clientsCount;
         if (clients > 1) {
-          io.local.emit('joined')
-          // socket.broadcast.emit('joined', args[0]);
-          // io.to(socket.id).emit('')
+          io.local.emit('joined');
         }
         break;
 
