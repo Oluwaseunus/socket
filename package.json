@@ -9,7 +9,7 @@
     "socket.io": "^4.1.0"
   },
   "scripts": {
-    "start": "node index.ts",
+    "start": "ts-node index.ts",
     "dev": "nodemon index.ts"
   },
   "devDependencies": {
