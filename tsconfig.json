@@ -1,5 +1,5 @@
 {
-  "include": ["src", "types"],
+  "include": ["."],
   "exclude": ["test"],
   "compilerOptions": {
     "target": "es6",
