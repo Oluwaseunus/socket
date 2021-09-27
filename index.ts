@@ -25,12 +25,20 @@ interface Connection {
   socket: Socket;
 }
 
-interface ForceMutePaylod {
+interface ForceMutePayload {
   userId: string;
   sender: string;
 }
 
 const allSockets: Connection[] = [];
+
+function handleForceMute({ userId, sender }: ForceMutePayload) {
+  const connection = allSockets.find(({ user }) => user === userId);
+
+  if (connection) {
+    io.to(connection.socket.id).emit('force_mute', { sender });
+  }
+}
 
 io.on('connection', (socket) => {
   socket.on('disconnect', () => {
@@ -45,14 +53,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('force_mute', ({ userId, sender }: ForceMutePaylod) => {
-    const connection = allSockets.find(({ user }) => user === userId);
-
-    if (connection) {
-      io.to(connection.socket.id).emit('force_mute', { sender });
-    }
-  });
-
   socket.onAny((eventName, ...args) => {
     switch (eventName) {
       case 'join':
@@ -63,6 +63,10 @@ io.on('connection', (socket) => {
         if (clients > 1) {
           io.local.emit('joined');
         }
+        break;
+
+      case 'force_mute':
+        handleForceMute(args[0] as ForceMutePayload);
         break;
 
       default:
