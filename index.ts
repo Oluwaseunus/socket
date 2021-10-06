@@ -40,6 +40,14 @@ function handleForceMute({ userId, sender }: ForceMutePayload) {
   }
 }
 
+function forceUnmute({ userId, sender }: ForceMutePayload) {
+  const connection = allSockets.find(({ user }) => user === userId);
+
+  if (connection) {
+    io.to(connection.socket.id).emit('force_unmute', { sender });
+  }
+}
+
 io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     const disconnectedSocketIndex = allSockets.findIndex(
@@ -67,6 +75,10 @@ io.on('connection', (socket) => {
 
       case 'force_mute':
         handleForceMute(args[0] as ForceMutePayload);
+        break;
+
+      case 'force_unmute':
+        forceUnmute(args[0] as ForceMutePayload);
         break;
 
       default:
